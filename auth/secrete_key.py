@@ -1,0 +1,2 @@
+palavra_secreta = 'exemplo'
+

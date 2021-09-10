@@ -1,0 +1,85 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Api de cadastro de clientes",
+    "description": "Api tem como objetivo o cadastro e consulta, basica de clientes",
+    "contact": {
+      "email": "i.markes@hotmail.com"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:5000/v1",
+      "description": "Desenvolvimento"
+    }
+  ],
+  "paths": {
+    "/clientes": {
+      "post": {
+        "summary": "Cadastro de cliente",
+        "description": "Essa rota é responsavel por cadastrar um novo cliente",
+        "tags": ["clientes"],
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "contentType": {
+            "json": {
+              "schema": {
+                "$ref": "#/components/schemas/Cliente"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "200": {
+            "description": "Ok",
+            "contentType": {
+              "json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cliente"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Cliente": {
+        "type":  "object",
+        "properties": {
+          "name": {
+            "type": "str"
+          },
+          "email": {
+            "type": "str"
+          },
+          "telefone": {
+            "type": "str"
+          },
+          "cidade": {
+            "type": "str"
+          },
+          "id": {
+            "type": "Serial"
+          }
+        }
+      }
+    }
+  },
+  "security": {
+    "bearerAuth": {
+      "type": "http",
+      "scheme": "bearer",
+      "format": "JWT"
+    }
+  }
+}
