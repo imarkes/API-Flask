@@ -8,7 +8,7 @@ from blacklist import BLACKLIST
 
 # app
 app = Flask(__name__)
-app.config['JSON_SORT_KEYS'] = False  # Ordena o objeto de retorno da requisição
+app.config['JSON_SORT_KEYS'] = False  # Ordena o objeto json de retorno da requisição
 
 # Instancia as rotas controllers
 app.register_blueprint(clientes.getBlueprintClientes())

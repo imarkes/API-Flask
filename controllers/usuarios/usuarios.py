@@ -9,7 +9,6 @@ from models.model_user import TabelaUsuarios
 from auth.secrete_key import palavra_secreta
 from blacklist import BLACKLIST
 
-
 # Define o escopo das rotas
 app = Blueprint('usuarios', __name__)
 
@@ -154,7 +153,7 @@ def login():
 @jwt_required()
 def logout():
     try:
-        jwt_id = get_jwt()['jti']
+        jwt_id = get_jwt()['jti']  # 'jti' é Identificador do token
         BLACKLIST.add(jwt_id)  # Adiciona o token na Blacklist
         return {'message': ' Faça o login para acessar'}, 200
 
