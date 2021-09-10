@@ -28,8 +28,6 @@ class TabelaClientes(connection):
             if dados:
                 return {'Error': False, 'response': dados, 'status': 200}
 
-            return {'Error': True, 'message':'not found', 'status': 404}
-
         except Error as e:
             return {'Error': True, 'message': e, 'status': 500}
 
@@ -41,8 +39,6 @@ class TabelaClientes(connection):
 
             if len(dados) > 0:
                 return {'Error': False, 'response': dados[0], 'status': 200}
-
-            return {'Error': True, 'message':'not found', 'status': 404}
 
         except Error as e:
             return {'Error': True, 'message': e, 'status': 500}
@@ -61,10 +57,10 @@ class TabelaClientes(connection):
 
     def deletar(self, id):
         try:
-                sql = f"DELETE FROM clientes WHERE cod = '{id}'"
-                self.execute(sql)
-                self.commit()
-                return {'Error': False, 'message': 'deletead', 'status': 200}
+            sql = f"DELETE FROM clientes WHERE cod = '{id}'"
+            self.execute(sql)
+            self.commit()
+            return {'Error': False, 'message': 'Deletead', 'status': 200}
 
         except Error as e:
             return {'Error': True, 'message': e, 'status': 500}# retorno status

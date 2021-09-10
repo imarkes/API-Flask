@@ -18,7 +18,7 @@ app.register_blueprint(usuarios.getBlueprintUsuarios())
 jwt = JWTManager(app)
 app.config['JWT_SECRET_KEY'] = palavra_secreta
 app.config['JWT_BLACKLIST_ENABLED'] = True
-# app.config['JWT_EXPIRATION_DELTA'] = datetime.timedelta(days=7)# Determina um tempo de expiração para o token
+# app.config['JWT_EXPIRATION_DELTA'] = datetime.timedelta(days=1) # Determina um tempo de expiração para o token
 
 
 # Verifica se o token está na Blacklist
@@ -31,7 +31,7 @@ def verificaBlackList(jwt_header, jwt_payload):
 # Revoga a autorização do token
 @jwt.revoked_token_loader
 def token_invalidado(jwt_header, jwt_payload):
-    return jsonify({'message': 'Fale com o administrador'}), 401
+    return jsonify({'message': 'Contact Administrator'}), 401
 
 
 if __name__ == ('__main__'):

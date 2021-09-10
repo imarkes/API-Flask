@@ -11,8 +11,6 @@ from blacklist import BLACKLIST
 
 # Define o escopo das rotas
 app = Blueprint('usuarios', __name__)
-
-
 def getBlueprintUsuarios():
     return app
 
@@ -24,17 +22,22 @@ def cadastrarUsuario():
         dados = json.loads(request.data)
         consulta = TabelaUsuarios().listar()
 
-        # Verifica se nome já existe
-        for nome in consulta['response']:
-            if nome[1] == dados['nome']:
-                return jsonify(message='Usuario já cadastrado', status=409), 409
-
-        # Cadastra
+        # Cadastro
         novo = TabelaUsuarios().cadastrar(
             dados['nome'],
             dados['email'],
             generate_password_hash(palavra_secreta + dados['senha']))  # Criptografa a senha
-        return jsonify({'Error': False, 'message': 'Usuario cadastrado com sucesso'}), 201
+
+        # Verifica se nome já existe
+        for nome in consulta['response']:
+            if nome[1] == dados['nome']:
+                return jsonify(message='User Already Exists'), 409
+
+        # Verifica erro de banco
+        if novo['Error']:
+            return jsonify({'Error': novo['Error'], 'message': 'Internal Server Error'}), 500
+
+        return jsonify({'Error': False, 'message': 'Successfully Registered User'}), 201
 
     except Exception as e:
         return {'Error': e}, 500
@@ -47,6 +50,14 @@ def listaUsuario():
     try:
         response = []
         dados = TabelaUsuarios().listar()
+
+        # Verifica se existe usuario cadastrado
+        if dados == None:
+            return jsonify(message='Not Found'), 404
+
+        # Verifica erro de banco
+        if dados['Error']:
+            return jsonify({'Error': dados['Error'], 'message': 'Internal Server Error'}), 500
 
         # Lista Usuarios
         for d in dados['response']:
@@ -69,8 +80,12 @@ def listaUsuarioId(id):
         dados = TabelaUsuarios().listarId(id)
 
         # Verifica se o Id Existe
+        if dados == None:
+            return jsonify(message='ID Not Found'), 404
+
+        # Verifica erro de banco
         if dados['Error']:
-            return jsonify(dados)
+            return jsonify({'Error': dados['Error'], 'message': 'Internal Server Error'}), 500
 
         # Lista ID
         if dados['response'][0] == id:
@@ -92,16 +107,21 @@ def atualizarUsuario(id):
         consulta = TabelaUsuarios().listarId(id)
 
         # Verifica se Id Existe
-        if consulta['Error']:
-            return jsonify(consulta), 404
+        if consulta == None:
+            return jsonify(message='ID Not Found'), 404
 
         # Atualiza
         if id == consulta['response'][0]:
             response = TabelaUsuarios().atualizar(
                 id,
                 dados['email'],
-                dados['senha'])
-            return jsonify({'Error': False, 'response': 'Updated'}), 200
+                generate_password_hash(palavra_secreta + dados['senha']))
+
+            # Verifica erro de banco
+            if response['Error']:
+                return jsonify({'Error': True, 'message': 'Internal Server Error'}), 500
+
+            return jsonify({'Error': False, 'response': 'Updated Successfully'}), 200
 
     except Exception as e:
         return {'Error': e}, 500
@@ -115,11 +135,17 @@ def deletaUsuario(id):
         consulta = TabelaUsuarios().listarId(id)
 
         # Verifica se Id Existe
-        if consulta['Error']:
-            return jsonify(consulta), 404
+        if consulta == None:
+            return jsonify(message='ID Not Found'), 404
 
         # Deleta
-        return TabelaUsuarios().deletar(id), 200
+        deletado = TabelaUsuarios().deletar(id)
+
+        # Verifica erro de Banco
+        if deletado['Error']:
+            return jsonify({'Error': True, 'message': 'Internal Server Error'}), 500
+
+        return jsonify({'Error': deletado['Error'], 'message': deletado['message']}), 200
 
     except Exception as e:
         return {'Error': e}, 500
@@ -132,6 +158,10 @@ def login():
         user = json.loads(request.data)
         login = TabelaUsuarios().loginUser(user['nome'])
 
+        # Verifica erro de banco
+        if login['Error']:
+            return jsonify({'Error': True, 'message': 'Internal Server Error'}), 500
+
         if check_password_hash(login['message'][1], palavra_secreta + user['senha']):  # Compara as senhas
             token = create_access_token(identity=palavra_secreta + user['senha'])  # Gera o token de acesso
 
@@ -140,9 +170,9 @@ def login():
 
             return jsonify({
                 'nome': login['message'][0],
-                'token': token})
+                'token': token}), 200
 
-        return jsonify({'message': 'Verifique Usuario e Senha'}), 401
+        return jsonify({'message': 'Check Username or Password'}), 401
 
     except Exception as e:
         return jsonify({'Error': True, 'message': e}), 500
@@ -154,8 +184,8 @@ def login():
 def logout():
     try:
         jwt_id = get_jwt()['jti']  # 'jti' é Identificador do token
-        BLACKLIST.add(jwt_id)  # Adiciona o token na Blacklist
-        return {'message': ' Faça o login para acessar'}, 200
+        BLACKLIST.append(jwt_id)  # Adiciona o token na Blacklist
+        return {'message': 'Login to access'}, 200
 
     except Exception as e:
-        return {'Error': e, 'message': 'Você não esta logado'}, 500
+        return {'Error': e, 'message': 'You are not logged in'}, 500

@@ -14,7 +14,7 @@ class TabelaUsuarios(connection):
 
             self.execute(sql, args)
             self.commit()
-            return {'Error': False, 'message': 'created', 'status': 201}
+            return {'Error': False, 'message': 'Created', 'status': 201}
 
         except Error as e:
             return {'Error': True, 'message': e, 'status': 500}
@@ -28,8 +28,6 @@ class TabelaUsuarios(connection):
             if dados:
                 return {'Error': False, 'response': dados, 'status': 200}
 
-            return {'Error': True, 'message':'not found', 'status': 404}
-
         except Error as e:
             return {'Error': True, 'message': e, 'status': 500}
 
@@ -42,15 +40,13 @@ class TabelaUsuarios(connection):
             if len(dados) > 0:
                 return {'Error': False, 'response': dados[0], 'status': 200}
 
-            return {'Error': True, 'message':'not found', 'status': 404}
-
         except Error as e:
             return {'Error': True, 'message': e, 'status': 500}
 
 
     def atualizar(self, id, *args):
         try:
-            sql = f"UPDATE usuarios SET (cod, email, senha = (%s, %s) WHERE cod = '{id}'"
+            sql = f"UPDATE usuarios SET (email, senha) = (%s, %s) WHERE cod = '{id}'"
             self.execute(sql, args)
             self.commit()
             return {'Error': False, 'message': 'Updated', 'status': 200}
@@ -61,10 +57,10 @@ class TabelaUsuarios(connection):
 
     def deletar(self, id):
         try:
-                sql = f"DELETE FROM usuarios WHERE cod = '{id}'"
-                self.execute(sql)
-                self.commit()
-                return {'Error': False, 'message': 'deletead', 'status': 204}
+            sql = f"DELETE FROM usuarios WHERE cod = '{id}'"
+            self.execute(sql)
+            self.commit()
+            return {'Error': False, 'message': 'Deletead', 'status': 200}
 
         except Error as e:
             return {'Error': True, 'message': e, 'status': 500}
@@ -76,9 +72,9 @@ class TabelaUsuarios(connection):
             dados = self.query(sql)
 
             if len(dados)>0:
-                return  {'Error': False, 'message':dados[0]}
-
-            return {'Error': True, 'message': 'not found'}
+                return {'Error': False, 'message':dados[0]}
 
         except Error as e:
-            return {'Error': e}
+            return {'Error':True, 'message': e}
+
+

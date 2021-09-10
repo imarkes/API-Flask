@@ -8,8 +8,6 @@ from models.model_clientes import TabelaClientes
 
 # Define o escopo das rotas
 app = Blueprint('clientes', __name__)
-
-
 def getBlueprintClientes():
     return app
 
@@ -21,18 +19,22 @@ def cadastrarCliente():
         consulta = TabelaClientes().listar()
         dados = json.loads(request.data)
 
-        ##Verifica se nome já Existe
-        for nome in consulta['response']:
-            if nome[1] == dados['nome']:
-                return jsonify(message=f'Nome já cadastrado: {nome[1]}', status=409), 409
-
-        # Cadastra
+        # Cadastro
         novo = TabelaClientes().cadastrar(
             dados['nome'],
             dados['email'],
             dados['telefone'],
             dados['cidade'])
-        return jsonify({'Error': False, 'response': dados}, status=201), 201
+
+        ##Verifica se nome já Existe
+        for nome in consulta['response']:
+            if nome[1] == dados['nome']:
+                return jsonify(message='User Already Exists'), 409
+
+        if novo['Error']:
+            return jsonify({'Error': novo['Error'], 'message': 'Internal Server Error'}), 500
+
+        return jsonify({'Error': False, 'message': 'Successfully Registered Client'}), 201
 
     except Exception as e:
         return {'Error': e}, 500
@@ -40,11 +42,19 @@ def cadastrarCliente():
 
 # Rota para Lista os clientes cadastrados
 @app.get('/v1/clientes')
-# @jwt_required()
+@jwt_required()
 def listaClientes():
     try:
         response = []
         dados = TabelaClientes().listar()
+
+        # Verifica se existe usuario cadastrado
+        if dados == None:
+            return jsonify(message='Not Found'), 404
+
+        # Verifica erro de banco
+        if dados['Error']:
+            return jsonify({'Error': dados['Error'], 'message': 'Internal Server Error'}), 500
 
         # Lista Todos
         for d in dados['response']:
@@ -55,6 +65,7 @@ def listaClientes():
                 'telefone': d[3],
                 'cidade': d[4]
             })
+
         return jsonify({'Error': False, 'response': response}), 200
 
     except Exception as e:
@@ -68,9 +79,13 @@ def listaClienteId(id):
     try:
         dados = TabelaClientes().listarId(id)
 
-        # Verifica se Id Existe
+        # Verifica se o Id Existe
+        if dados == None:
+            return jsonify(message='ID Not Found'), 404
+
+        # Verifica erro de banco
         if dados['Error']:
-            return jsonify(dados), 404
+            return jsonify({'Error': dados['Error'], 'message': 'Internal Server Error'}), 500
 
         # Lista ID
         if dados['response'][0] == id:
@@ -93,9 +108,9 @@ def atualizaCliente(id):
         dados = json.loads(request.data)
         consulta = TabelaClientes().listarId(id)
 
-        # verifica se ID existe
-        if consulta['Error']:
-            return jsonify(consulta), 404
+        # Verifica se Id Existe
+        if consulta is None:
+            return jsonify(message='ID Not Found'), 404
 
         # Atualiza
         if id == consulta['response'][0]:
@@ -105,7 +120,12 @@ def atualizaCliente(id):
                 dados['email'],
                 dados['telefone'],
                 dados['cidade'])
-            return jsonify({'Error': False, 'response': 'Updated'}), 200
+
+            # Verifica erro de banco
+            if response['Error']:
+                return jsonify({'Error': True, 'message': 'Internal Server Error'}), 500
+
+            return jsonify({'Error': False, 'response': 'Updated Successfully'}), 200
 
     except Exception as e:
         return {'Error': e}, 500
@@ -119,11 +139,17 @@ def deletaClienteId(id):
         consulta = TabelaClientes().listarId(id)
 
         # Verifica se Id Existe
-        if consulta['Error']:
-            return jsonify(consulta), 404
+        if consulta == None:
+            return jsonify(message='ID Not Found'), 404
 
         # Deleta
-        return TabelaClientes().deletar(id), 200
+        deletado = TabelaClientes().deletar(id)
+
+        # Verifica erro de Banco
+        if deletado['Error']:
+            return jsonify({'Error': True, 'message': 'Internal Server Error'}), 500
+
+        return jsonify({'Error': deletado['Error'], 'message': deletado['message']}), 200
 
     except Exception as e:
         return {'Error': e}, 500
