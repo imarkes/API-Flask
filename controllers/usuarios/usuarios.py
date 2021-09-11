@@ -40,7 +40,7 @@ def cadastrarUsuario():
         return jsonify({'Error': False, 'message': 'Successfully Registered User'}), 201
 
     except Exception as e:
-        return {'Error': e}, 500
+        return jsonify({'Error': True, 'message': f'{e}'}), 500
 
 
 # Rota para Listar todos Usuarios Cadastrados
@@ -69,7 +69,7 @@ def listaUsuario():
         return jsonify({'Error': False, 'response': response}), 200
 
     except Exception as e:
-        return {'Error': e}, 500
+        return jsonify({'Error': True, 'message': f'{e}'}), 500
 
 
 # Rota para Listar o usuario pelo ID
@@ -95,7 +95,7 @@ def listaUsuarioId(id):
                 'email': dados['response'][2]}]}), 200
 
     except Exception as e:
-        return {'Error': e}, 400
+        return jsonify({'Error': True, 'message': f'{e}'}), 500
 
 
 # Rota para atualiza o usuario pelo ID
@@ -124,7 +124,7 @@ def atualizarUsuario(id):
             return jsonify({'Error': False, 'response': 'Updated Successfully'}), 200
 
     except Exception as e:
-        return {'Error': e}, 500
+        return jsonify({'Error': True, 'message': f'{e}'}), 500
 
 
 # Rota para Deletar Usuario
@@ -148,7 +148,7 @@ def deletaUsuario(id):
         return jsonify({'Error': deletado['Error'], 'message': deletado['message']}), 200
 
     except Exception as e:
-        return {'Error': e}, 500
+        return jsonify({'Error': True, 'message': f'{e}'}), 500
 
 
 # Rota de Login
@@ -175,7 +175,7 @@ def login():
         return jsonify({'message': 'Check Username or Password'}), 401
 
     except Exception as e:
-        return jsonify({'Error': True, 'message': e}), 500
+        return jsonify({'Error': True, 'message': f'{e}'}), 500
 
 
 # Rota de Logout

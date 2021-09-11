@@ -37,7 +37,7 @@ def cadastrarCliente():
         return jsonify({'Error': False, 'message': 'Successfully Registered Client'}), 201
 
     except Exception as e:
-        return {'Error': e}, 500
+        return jsonify({'Error': True, 'message': f'{e}'}), 500
 
 
 # Rota para Lista os clientes cadastrados
@@ -49,7 +49,7 @@ def listaClientes():
         dados = TabelaClientes().listar()
 
         # Verifica se existe usuario cadastrado
-        if dados == None:
+        if dados is None:
             return jsonify(message='Not Found'), 404
 
         # Verifica erro de banco
@@ -69,7 +69,7 @@ def listaClientes():
         return jsonify({'Error': False, 'response': response}), 200
 
     except Exception as e:
-        return {'Error': e}, 500
+        return jsonify({'Error': True, 'message': f'{e}'}), 500
 
 
 # Rota para Listar o cliente pelo ID
@@ -80,7 +80,7 @@ def listaClienteId(id):
         dados = TabelaClientes().listarId(id)
 
         # Verifica se o Id Existe
-        if dados == None:
+        if dados is None:
             return jsonify(message='ID Not Found'), 404
 
         # Verifica erro de banco
@@ -97,7 +97,7 @@ def listaClienteId(id):
                 'cidade': dados['response'][4]}]}), 200
 
     except Exception as e:
-        return {'Error': e}, 500
+        return jsonify({'Error': True, 'message': f'{e}'}), 500
 
 
 # Rota para Atualiza o cliente pelo ID
@@ -128,7 +128,7 @@ def atualizaCliente(id):
             return jsonify({'Error': False, 'response': 'Updated Successfully'}), 200
 
     except Exception as e:
-        return {'Error': e}, 500
+        return jsonify({'Error': True, 'message': f'{e}'}), 500
 
 
 # Rota para Deletar o Cliente pelo ID
@@ -152,4 +152,4 @@ def deletaClienteId(id):
         return jsonify({'Error': deletado['Error'], 'message': deletado['message']}), 200
 
     except Exception as e:
-        return {'Error': e}, 500
+        return jsonify({'Error': True, 'message': f'{e}'}), 500

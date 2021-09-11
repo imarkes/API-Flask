@@ -18,7 +18,6 @@ app.register_blueprint(usuarios.getBlueprintUsuarios())
 jwt = JWTManager(app)
 app.config['JWT_SECRET_KEY'] = palavra_secreta
 app.config['JWT_BLACKLIST_ENABLED'] = True
-# app.config['JWT_EXPIRATION_DELTA'] = datetime.timedelta(days=1) # Determina um tempo de expiração para o token
 
 
 # Verifica se o token está na Blacklist
