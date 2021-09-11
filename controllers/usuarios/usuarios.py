@@ -184,8 +184,8 @@ def login():
 def logout():
     try:
         jwt_id = get_jwt()['jti']  # 'jti' é Identificador do token
-        BLACKLIST.append(jwt_id)  # Adiciona o token na Blacklist
-        return {'message': 'Login to access'}, 200
+        BLACKLIST.add(jwt_id)  # Adiciona o token na Blacklist
+        return {'Alert': 'Logout', 'message': 'Login to access'}, 200
 
     except Exception as e:
-        return {'Error': e, 'message': 'You are not logged in'}, 500
+        return {'Error': f'{e}', 'message': 'You are not logged in'}, 500

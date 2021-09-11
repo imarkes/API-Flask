@@ -5,7 +5,7 @@ class conect_postgress:
                 'host': 'localhost',
                 'database': 'clientes_db',
                 'user': 'postgres',
-                'password': 'adm',
+                'password': 'henet',
                 'port': 5432
             }
     }

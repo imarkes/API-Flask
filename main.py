@@ -31,7 +31,7 @@ def verificaBlackList(jwt_header, jwt_payload):
 # Revoga a autorização do token
 @jwt.revoked_token_loader
 def token_invalidado(jwt_header, jwt_payload):
-    return jsonify({'message': 'Contact Administrator'}), 401
+    return jsonify({'Alert':'Token Revoked', 'message': 'Contact Administrator'}), 401
 
 
 if __name__ == ('__main__'):
