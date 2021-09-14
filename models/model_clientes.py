@@ -22,7 +22,7 @@ class TabelaClientes(connection):
 
     def listar(self):
         try:
-            sql = f"SELECT cod, nome, email, telefone, cidade FROM clientes"
+            sql = f"SELECT cod, nome, email, telefone, cidade, criacao FROM clientes"
             dados = self.query(sql)
 
             if dados:
@@ -34,7 +34,7 @@ class TabelaClientes(connection):
 
     def listarId(self, id):
         try:
-            sql = f"SELECT cod, nome, email, telefone, cidade FROM clientes WHERE cod = '{id}'"
+            sql = f"SELECT cod, nome, email, telefone, cidade, criacao FROM clientes WHERE cod = '{id}'"
             dados = self.query(sql)
 
             if len(dados) > 0:

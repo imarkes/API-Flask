@@ -1,8 +1,9 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Api de cadastro de clientes",
+    "title": "Api de cadastro",
     "description": "Api tem como objetivo o cadastro e consulta basica de clientes",
+    "version": "1.0.0",
     "contact": {
       "name": "Ivan Marques",
       "email": "i.markes@hotmail.com"
@@ -12,21 +13,14 @@
     {
       "url": "http://127.0.0.1:5000",
       "description": "Desenvolvimento"
-    }
-  ],
+    }],
   "paths": {
     "/v1/clientes": {
       "get": {
         "summary": "List All Clients",
         "description": "Returns all clients from the system that the user has access to",
-        "tags": [
-          "Clientes"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
+        "tags": ["Clientes"],
+        "security": [{"bearerAuth": []}],
         "responses": {
           "200": {
             "description": "List all Clients"
@@ -43,11 +37,10 @@
         }
       },
       "post": {
-        "summary": "Post a Client",
+        "summary": "Create a Client",
         "description": "Post a clients in the system that the user has access to",
-        "tags": [
-          "Clientes"
-        ],
+        "tags": ["Clientes"],
+        "security": [{"bearerAuth": []}],
         "requestBody": {
           "required": true,
           "content": {
@@ -90,24 +83,17 @@
     },
     "/v1/clientes/{id}": {
       "get": {
-        "summary": "List a Client for Id",
+        "summary": "List a Client by ID",
         "description": "Return a client from the system that the user has access to",
-        "tags": [
-          "Clientes"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
+        "tags": ["Clientes"],
+        "security": [{"bearerAuth": []}],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "description": "Search Whit Id"
-          }
-        ],
+          }],
         "responses": {
           "200": {
             "description": "List a Client"
@@ -124,23 +110,16 @@
         }
       },
       "put": {
-        "summary": "Put a Client",
-        "description": "Post a clients in the system that the user has access to",
-        "tags": [
-          "Clientes"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
+        "summary": "Updated a Client by ID",
+        "description": "Updated a clients in the system that the user has access to",
+        "tags": ["Clientes"],
+        "security": [{"bearerAuth": []}],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true
-          }
-        ],
+          }],
         "requestBody": {
           "required": true,
           "content": {
@@ -171,34 +150,20 @@
         }
       },
       "delete": {
-        "summary": "Delete a Client",
-        "description": "Delete a Client",
-        "tags": [
-          "Clientes"
-        ],
+        "summary": "Delete a Client by ID",
+        "description": "Delete a Client from the system that the user has access to",
+        "tags": ["Clientes"],
         "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
+          {"bearerAuth": []}],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true
-          }
-        ],
+          }],
         "responses": {
           "200": {
-            "description": "Deletead Ok",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "$ref": "#/components/schemas/Clientes"
-                }
-              }
-            }
+            "description": "Deletead Ok"
           },
           "500": {
             "description": "Internal Server Error"
@@ -218,9 +183,6 @@
       "Clientes": {
         "type": "object",
         "properties": {
-          "cod": {
-            "type": "integer"
-          },
           "nome": {
             "type": "string"
           },
@@ -229,7 +191,8 @@
             "format": "email"
           },
           "telefone": {
-            "type": "string"
+            "type": "integer",
+            "format": "numeric"
           },
           "cidade": {
             "type": "string"

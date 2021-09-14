@@ -2,12 +2,11 @@ import json
 
 from flask_jwt_extended import jwt_required
 from flask import jsonify, request, Blueprint
-from flask_restful import reqparse
 
 from models.model_clientes import TabelaClientes
 
 
-# Define o escopo das rotas
+# Define o escopo clientes
 app = Blueprint('clientes', __name__)
 def getBlueprintClientes():
     return app
@@ -15,6 +14,7 @@ def getBlueprintClientes():
 
 # Rota para cadastra um novo Cliente
 @app.post('/v1/clientes')
+@jwt_required()
 def cadastrarCliente():
     try:
         consulta = TabelaClientes().listar()
@@ -27,15 +27,26 @@ def cadastrarCliente():
             dados['telefone'],
             dados['cidade'])
 
+        # Verifica os tipos de dados enviados
+        if dados['nome'] is None or dados['nome'] == "":
+             return jsonify(message='Name is required'),400
+        elif dados['email'] is None or dados['email']== "":
+            return jsonify(message ="Email is required"),400
+        elif dados['telefone'] is not int:
+            return jsonify(message='Telefone type Integer is required'),400
+
+
         ##Verifica se nome já Existe
         for nome in consulta['response']:
             if nome[1] == dados['nome']:
                 return jsonify(message='User Already Exists'), 409
 
+        # Verifica erro de servidor
         if novo['Error']:
             return jsonify({'Error': novo['Error'], 'message': 'Internal Server Error'}), 500
 
-        return jsonify({'Error': False, 'message': 'Successfully Registered Client'}), 201
+        retorno= jsonify({'Error': False, 'message': 'Successfully Registered Client'})
+        return retorno,201
 
     except Exception as e:
         return jsonify({'Error': True, 'message': f'{e}'}), 500
@@ -43,7 +54,7 @@ def cadastrarCliente():
 
 # Rota para Lista os clientes cadastrados
 @app.get('/v1/clientes')
-#@jwt_required()
+@jwt_required()
 def listaClientes():
     try:
         response = []
@@ -53,21 +64,24 @@ def listaClientes():
         if dados is None:
             return jsonify(message='Not Found'), 404
 
-        # Verifica erro de banco
+        # Verifica erro de servidor
         if dados['Error']:
             return jsonify({'Error': dados['Error'], 'message': 'Internal Server Error'}), 500
 
         # Lista Todos
         for d in dados['response']:
+
             response.append({
                 'cod': d[0],
                 'nome': d[1],
                 'email': d[2],
-                'telefone': d[3],
-                'cidade': d[4]
+                'telefone': int(d[3]),
+                'cidade': d[4],
+                'criacao':d[5]
             })
 
-        return jsonify({'response': response}), 200
+        retorno = jsonify({'clients': response})
+        return retorno, 200
 
     except Exception as e:
         return jsonify({'Error': True, 'message': f'{e}'}), 500
@@ -75,7 +89,7 @@ def listaClientes():
 
 # Rota para Listar o cliente pelo ID
 @app.get('/v1/clientes/<int:id>')
-# @jwt_required()
+@jwt_required()
 def listaClienteId(id):
     try:
         dados = TabelaClientes().listarId(id)
@@ -84,18 +98,19 @@ def listaClienteId(id):
         if dados is None:
             return jsonify(message='ID Not Found'), 404
 
-        # Verifica erro de banco
+        # Verifica erro de servidor
         if dados['Error']:
             return jsonify({'Error': dados['Error'], 'message': 'Internal Server Error'}), 500
 
         # Lista ID
         if dados['response'][0] == id:
-            return jsonify({'Error': False, 'response': [{
+            return jsonify({'Error': False, 'clients': [{
                 'id': id,
                 'nome': dados['response'][1],
                 'email': dados['response'][2],
-                'telefone': dados['response'][3],
-                'cidade': dados['response'][4]}]}), 200
+                'telefone':int(dados['response'][3]),
+                'cidade': dados['response'][4],
+                'criacao':dados['response'][5]}]}), 200
 
     except Exception as e:
         return jsonify({'Error': True, 'message': f'{e}'}), 500
@@ -122,7 +137,7 @@ def atualizaCliente(id):
                 dados['telefone'],
                 dados['cidade'])
 
-            # Verifica erro de banco
+            # Verifica erro de servidor
             if response['Error']:
                 return jsonify({'Error': True, 'message': 'Internal Server Error'}), 500
 
@@ -134,7 +149,7 @@ def atualizaCliente(id):
 
 # Rota para Deletar o Cliente pelo ID
 @app.delete('/v1/clientes/<int:id>')
-#@jwt_required()
+@jwt_required()
 def deletaClienteId(id):
     try:
         consulta = TabelaClientes().listarId(id)
@@ -146,7 +161,7 @@ def deletaClienteId(id):
         # Deleta
         deletado = TabelaClientes().deletar(id)
 
-        # Verifica erro de Banco
+        # Verifica erro de servidor
         if deletado['Error']:
             return jsonify({'Error': True, 'message': 'Internal Server Error'}), 500
 

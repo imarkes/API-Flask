@@ -27,6 +27,7 @@ app.register_blueprint(usuarios.getBlueprintUsuarios())
 jwt = JWTManager(app)
 app.config['JWT_SECRET_KEY'] = palavra_secreta
 app.config['JWT_BLACKLIST_ENABLED'] = True
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False
 
 app.config['JSON_SORT_KEYS'] = False  # Ordena o objeto json de retorno da requisição
 
@@ -45,4 +46,4 @@ def token_invalidado(jwt_header, jwt_payload):
 
 
 if __name__ == ('__main__'):
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
