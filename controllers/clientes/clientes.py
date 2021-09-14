@@ -2,6 +2,7 @@ import json
 
 from flask_jwt_extended import jwt_required
 from flask import jsonify, request, Blueprint
+from flask_restful import reqparse
 
 from models.model_clientes import TabelaClientes
 
@@ -42,7 +43,7 @@ def cadastrarCliente():
 
 # Rota para Lista os clientes cadastrados
 @app.get('/v1/clientes')
-@jwt_required()
+#@jwt_required()
 def listaClientes():
     try:
         response = []
@@ -66,7 +67,7 @@ def listaClientes():
                 'cidade': d[4]
             })
 
-        return jsonify({'Error': False, 'response': response}), 200
+        return jsonify({'response': response}), 200
 
     except Exception as e:
         return jsonify({'Error': True, 'message': f'{e}'}), 500
@@ -133,7 +134,7 @@ def atualizaCliente(id):
 
 # Rota para Deletar o Cliente pelo ID
 @app.delete('/v1/clientes/<int:id>')
-@jwt_required()
+#@jwt_required()
 def deletaClienteId(id):
     try:
         consulta = TabelaClientes().listarId(id)
