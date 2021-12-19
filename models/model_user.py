@@ -1,14 +1,16 @@
-from connection.conection import connection
+from connection.conection import Connection
 from psycopg2 import Error
 
 
-#Conectando ao BD Clientes
-class TabelaUsuarios(connection):
+class TabelaUsuarios(Connection):
+    """#Manipula a tabela Usuarios"""
+
     def __init__(self):
-        connection.__init__(self)
+        """Instancia a conexao"""
+        Connection.__init__(self)
 
-
-    def cadastrar(self, *args):
+    def cadastrar_usuario(self, *args):
+        """SQL para cadastrar usuario"""
         try:
             sql = "INSERT INTO usuarios (nome, email, senha) VALUES (%s, %s, %s)"
 
@@ -19,8 +21,8 @@ class TabelaUsuarios(connection):
         except Error as e:
             return {'Error': True, 'message': e, 'status': 500}
 
-
-    def listar(self):
+    def listar_usuarios(self):
+        """SQL para listar todos usuarios"""
         try:
             sql = f"SELECT cod, nome, email FROM usuarios"
             dados = self.query(sql)
@@ -31,8 +33,8 @@ class TabelaUsuarios(connection):
         except Error as e:
             return {'Error': True, 'message': e, 'status': 500}
 
-
-    def listarId(self, id):
+    def listar_usuario_pelo_id(self, id):
+        """SQL para listar o usuario pelo ID"""
         try:
             sql = f"SELECT cod, nome, email FROM usuarios WHERE cod = '{id}'"
             dados = self.query(sql)
@@ -43,8 +45,8 @@ class TabelaUsuarios(connection):
         except Error as e:
             return {'Error': True, 'message': e, 'status': 500}
 
-
-    def atualizar(self, id, *args):
+    def atualizar_usuario_com_parametros(self, id, *args):
+        """SQL para atualizar usuarios com parametros"""
         try:
             sql = f"UPDATE usuarios SET (email, senha) = (%s, %s) WHERE cod = '{id}'"
             self.execute(sql, args)
@@ -54,8 +56,8 @@ class TabelaUsuarios(connection):
         except Error as e:
             return {'Error': True, 'message': e, 'status': 500}
 
-
-    def deletar(self, id):
+    def deleta_usuario_pelo_id(self, id):
+        """SQL para deletar usuario pelo ID"""
         try:
             sql = f"DELETE FROM usuarios WHERE cod = '{id}'"
             self.execute(sql)
@@ -65,16 +67,14 @@ class TabelaUsuarios(connection):
         except Error as e:
             return {'Error': True, 'message': e, 'status': 500}
 
-
-    def loginUser(self, nome):
+    def login_user(self, nome):
+        """SQL para consultar o login e senha do usuario"""
         try:
             sql = f"SELECT nome, senha FROM usuarios WHERE nome = '{nome}'"
             dados = self.query(sql)
 
-            if len(dados)>0:
-                return {'Error': False, 'message':dados[0]}
+            if len(dados) > 0:
+                return {'Error': False, 'message': dados[0]}
 
         except Error as e:
-            return {'Error':True, 'message': e}
-
-
+            return {'Error': True, 'message': e}

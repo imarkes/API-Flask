@@ -11,19 +11,23 @@ from blacklist import BLACKLIST
 
 # Define o escopo das rotas
 app = Blueprint('usuarios', __name__)
-def getBlueprintUsuarios():
+
+
+def get_blueprint_usuarios():
+    """define o escopo das rotas de usuarios"""
     return app
 
 
 # Rota de cadastro de usuario
 @app.post('/v1/usuarios')
-def cadastrarUsuario():
+def cadastra_usuario():
+    """Rota para cadastrar usuario"""
     try:
         dados = json.loads(request.data)
-        consulta = TabelaUsuarios().listar()
+        consulta = TabelaUsuarios().listar_usuarios()
 
         # Cadastro
-        novo = TabelaUsuarios().cadastrar(
+        novo = TabelaUsuarios().cadastrar_usuario(
             dados['nome'],
             dados['email'],
             generate_password_hash(palavra_secreta + dados['senha']))  # Criptografa a senha
@@ -43,13 +47,13 @@ def cadastrarUsuario():
         return jsonify({'Error': True, 'message': f'{e}'}), 500
 
 
-# Rota para Listar todos Usuarios Cadastrados
 @app.get('/v1/usuarios')
 # @jwt_required()
-def listaUsuario():
+def lista_usuarios():
+    """Rota para Listar todos Usuarios Cadastrados"""
     try:
         response = []
-        dados = TabelaUsuarios().listar()
+        dados = TabelaUsuarios().listar_usuarios()
 
         # Verifica se existe usuario cadastrado
         if dados == None:
@@ -72,12 +76,12 @@ def listaUsuario():
         return jsonify({'Error': True, 'message': f'{e}'}), 500
 
 
-# Rota para Listar o usuario pelo ID
 @app.get('/v1/usuarios/<int:id>')
 # @jwt_required()
-def listaUsuarioId(id):
+def lista_usuario_id(id):
+    """Rota para Listar o usuario pelo ID"""
     try:
-        dados = TabelaUsuarios().listarId(id)
+        dados = TabelaUsuarios().listar_usuario_pelo_id(id)
 
         # Verifica se o Id Existe
         if dados == None:
@@ -98,13 +102,13 @@ def listaUsuarioId(id):
         return jsonify({'Error': True, 'message': f'{e}'}), 500
 
 
-# Rota para atualiza o usuario pelo ID
 @app.put('/v1/usuarios/<int:id>')
 @jwt_required()
-def atualizarUsuario(id):
+def atualiza_usuario(id):
+    """Rota para atualiza o usuario pelo ID"""
     try:
         dados = json.loads(request.data)
-        consulta = TabelaUsuarios().listarId(id)
+        consulta = TabelaUsuarios().listar_usuario_pelo_id(id)
 
         # Verifica se Id Existe
         if consulta == None:
@@ -112,7 +116,7 @@ def atualizarUsuario(id):
 
         # Atualiza
         if id == consulta['response'][0]:
-            response = TabelaUsuarios().atualizar(
+            response = TabelaUsuarios().atualizar_usuario_com_parametros(
                 id,
                 dados['email'],
                 generate_password_hash(palavra_secreta + dados['senha']))
@@ -130,16 +134,16 @@ def atualizarUsuario(id):
 # Rota para Deletar Usuario
 @app.delete('/v1/usuarios/<int:id>')
 @jwt_required()
-def deletaUsuario(id):
+def deleta_usuario(id):
     try:
-        consulta = TabelaUsuarios().listarId(id)
+        consulta = TabelaUsuarios().listar_usuario_pelo_id(id)
 
         # Verifica se Id Existe
         if consulta == None:
             return jsonify(message='ID Not Found'), 404
 
         # Deleta
-        deletado = TabelaUsuarios().deletar(id)
+        deletado = TabelaUsuarios().deleta_usuario_pelo_id(id)
 
         # Verifica erro de Banco
         if deletado['Error']:
@@ -151,12 +155,12 @@ def deletaUsuario(id):
         return jsonify({'Error': True, 'message': f'{e}'}), 500
 
 
-# Rota de Login
 @app.post('/v1/login')
 def login():
+    """ Rota para criar o login de usuario """
     try:
         user = json.loads(request.data)
-        login = TabelaUsuarios().loginUser(user['nome'])
+        login = TabelaUsuarios().login_user(user['nome'])
 
         # Verifica erro de banco
         if login['Error']:
@@ -178,10 +182,10 @@ def login():
         return jsonify({'Error': True, 'message': f'{e}'}), 500
 
 
-# Rota de Logout
 @app.post('/v1/logout')
 @jwt_required()
 def logout():
+    """ Rota para fazer logout de usuario"""
     try:
         jwt_id = get_jwt()['jti']  # 'jti' é Identificador do token
         BLACKLIST.add(jwt_id)  # Adiciona o token na Blacklist

@@ -5,23 +5,24 @@ from flask import jsonify, request, Blueprint
 
 from models.model_clientes import TabelaClientes
 
-
-# Define o escopo clientes
 app = Blueprint('clientes', __name__)
-def getBlueprintClientes():
+
+
+def get_blueprint_clientes():
+    """Define o escopo clientes"""
     return app
 
 
 # Rota para cadastra um novo Cliente
 @app.post('/v1/clientes')
 @jwt_required()
-def cadastrarCliente():
+def cadastrar_cliente():
+    """ Rota para cadastrar os clientes"""
     try:
-        consulta = TabelaClientes().listar()
+        consulta = TabelaClientes().listar_clientes()
         dados = json.loads(request.data)
 
-        # Cadastro
-        novo = TabelaClientes().cadastrar(
+        novo = TabelaClientes().cadastra_clientes(
             dados['nome'],
             dados['email'],
             dados['telefone'],
@@ -29,14 +30,13 @@ def cadastrarCliente():
 
         # Verifica os tipos de dados enviados
         if dados['nome'] is None or dados['nome'] == "":
-             return jsonify(message='Name is required'),400
-        elif dados['email'] is None or dados['email']== "":
-            return jsonify(message ="Email is required"),400
+            return jsonify(message='Name is required'), 400
+        elif dados['email'] is None or dados['email'] == "":
+            return jsonify(message="Email is required"), 400
         elif dados['telefone'] is not int:
-            return jsonify(message='Telefone type Integer is required'),400
+            return jsonify(message='Telefone type Integer is required'), 400
 
-
-        ##Verifica se nome já Existe
+        # Verifica se nome já Existe
         for nome in consulta['response']:
             if nome[1] == dados['nome']:
                 return jsonify(message='User Already Exists'), 409
@@ -45,20 +45,20 @@ def cadastrarCliente():
         if novo['Error']:
             return jsonify({'Error': novo['Error'], 'message': 'Internal Server Error'}), 500
 
-        retorno= jsonify({'Error': False, 'message': 'Successfully Registered Client'})
-        return retorno,201
+        retorno = jsonify({'Error': False, 'message': 'Successfully Registered Client'})
+        return retorno, 201
 
     except Exception as e:
         return jsonify({'Error': True, 'message': f'{e}'}), 500
 
 
-# Rota para Lista os clientes cadastrados
 @app.get('/v1/clientes')
 @jwt_required()
-def listaClientes():
+def lista_clientes():
+    """Rota para Lista os clientes cadastrados"""
     try:
         response = []
-        dados = TabelaClientes().listar()
+        dados = TabelaClientes().listar_clientes()
 
         # Verifica se existe usuario cadastrado
         if dados is None:
@@ -70,14 +70,13 @@ def listaClientes():
 
         # Lista Todos
         for d in dados['response']:
-
             response.append({
                 'cod': d[0],
                 'nome': d[1],
                 'email': d[2],
                 'telefone': int(d[3]),
                 'cidade': d[4],
-                'criacao':d[5]
+                'criacao': d[5]
             })
 
         retorno = jsonify({'clients': response})
@@ -87,12 +86,12 @@ def listaClientes():
         return jsonify({'Error': True, 'message': f'{e}'}), 500
 
 
-# Rota para Listar o cliente pelo ID
 @app.get('/v1/clientes/<int:id>')
 @jwt_required()
-def listaClienteId(id):
+def lista_cliente_Id(id):
+    """Rota para Listar o cliente pelo ID"""
     try:
-        dados = TabelaClientes().listarId(id)
+        dados = TabelaClientes().lista_cliente_pelo_id(id)
 
         # Verifica se o Id Existe
         if dados is None:
@@ -108,21 +107,21 @@ def listaClienteId(id):
                 'id': id,
                 'nome': dados['response'][1],
                 'email': dados['response'][2],
-                'telefone':int(dados['response'][3]),
+                'telefone': int(dados['response'][3]),
                 'cidade': dados['response'][4],
-                'criacao':dados['response'][5]}]}), 200
+                'criacao': dados['response'][5]}]}), 200
 
     except Exception as e:
         return jsonify({'Error': True, 'message': f'{e}'}), 500
 
 
-# Rota para Atualiza o cliente pelo ID
 @app.put('/v1/clientes/<int:id>')
 @jwt_required()
-def atualizaCliente(id):
+def atualiza_cliente(id):
+    """Rota para Atualiza o cliente pelo ID"""
     try:
         dados = json.loads(request.data)
-        consulta = TabelaClientes().listarId(id)
+        consulta = TabelaClientes().atualizar_cliente_com_args(id)
 
         # Verifica se Id Existe
         if consulta is None:
@@ -130,7 +129,7 @@ def atualizaCliente(id):
 
         # Atualiza
         if id == consulta['response'][0]:
-            response = TabelaClientes().atualizar(
+            response = TabelaClientes().atualizar_cliente_com_args(
                 id,
                 dados['nome'],
                 dados['email'],
@@ -147,19 +146,19 @@ def atualizaCliente(id):
         return jsonify({'Error': True, 'message': f'{e}'}), 500
 
 
-# Rota para Deletar o Cliente pelo ID
 @app.delete('/v1/clientes/<int:id>')
 @jwt_required()
-def deletaClienteId(id):
+def deleta_cliente_id(id):
+    """ Rota para Deletar o Cliente pelo ID"""
     try:
-        consulta = TabelaClientes().listarId(id)
+        consulta = TabelaClientes().lista_cliente_pelo_id(id)
 
         # Verifica se Id Existe
         if consulta == None:
             return jsonify(message='ID Not Found'), 404
 
         # Deleta
-        deletado = TabelaClientes().deletar(id)
+        deletado = TabelaClientes().deletar_cliente_pelo_id(id)
 
         # Verifica erro de servidor
         if deletado['Error']:
